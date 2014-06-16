@@ -22,10 +22,6 @@
 #  
 #  
 
-dbname = None #name of the database file
-tablename = None #name of the table being synced
-portnum = None # the port that the client will connect to the host on
-
 import socket
 import sys
 import sqlite3 as sql
@@ -39,27 +35,46 @@ def main():
 	portnum = int(sys.argv[3]) #port that client will connect to host on
 	syncing = True
 	
-	client_socket = connect_to_client(portnum)
+	client_socket = connect_to_client('localhost',portnum)
 	db_con = sql.connect(dbname)
 	try:
-		cursor = db_con.cursor()
+		cursor = db_con.cursor() #used to manipulate tables in the db
 		print "syncing..."
 		while(syncing):
 			element = get_data(client_socket)
-			if(element == EOT):
+			if(element == EOT): #the last message was sent
 				syncing = False
 			else:
-				values = parse_data(element)
+				values = parse_data(element) #the list of new vals
 				update_table(tablename,values)
-			
+				
+#takes an open port and returns socket to client			
 def connect_to_client(portnumber):	
-	pass
+	server_sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+	server_sock.bind(("localhost",portnumber))
+	server_sock.listen(5) #TODO Pick a number
+	(clientsocket,address) = server_sock.accept()	
+	return clientsocket
 	
+#reads each trans. block from the client and returns it
+#reads one byte at a time until ETB is sent
 def get_data(sock):
-	pass
+	data = ""
+	while(True) :
+		curr_char = sock.recv(1)
+		if(thisChar == ETB):
+			break
+		else :
+			message = message + curr_char
+	return message
 	
 def parse_data(raw_data):
-	pass
+	values = []
+	unit_separator = raw_data.index("\31")
+	if(len(raw_data) == len(raw_data[unit_separator:])):
+		return values.append(raw_data)
+	values.append(parse_data(raw_data[unit_separator:]))
+	return values.append(raw_data[:unit_separator])
 	
 def update_data(values):
 	pass
