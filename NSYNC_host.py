@@ -70,11 +70,14 @@ def get_data(sock):
 	
 def parse_data(raw_data):
 	values = []
-	unit_separator = raw_data.index("\31")
-	if(len(raw_data) == len(raw_data[unit_separator:])):
-		return values.append(raw_data)
-	values.append(parse_data(raw_data[unit_separator:]))
-	return values.append(raw_data[:unit_separator])
+	unit_separator = raw_data.find("\31")
+	if(unit_separator == -1):
+		values.append(raw_data)
+		return values
+	values.append(parse_data(raw_data[unit_separator+1:]))
+	values.append(raw_data[:unit_separator])
+	values.reverse()
+	return values
 	
 def update_data(values):
 	pass
