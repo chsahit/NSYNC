@@ -47,7 +47,8 @@ def main():
 			else:
 				values = parse_data(element) #the list of new vals
 				update_table(tablename,values)
-				
+	except:
+		print "sync failed"
 #takes an open port and returns socket to client			
 def connect_to_client(portnumber):	
 	server_sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
